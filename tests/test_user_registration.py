@@ -1,36 +1,38 @@
-import datetime
-from demoqa_tests.model.pages import registration_form
 from demoqa_tests.model.data import user
+from demoqa_tests.model.pages import app
 
 def test_submit_practise_form():
+    student = user.sample_female_student
 
-    registration_form.given_opened()
+    (
+        app.registration_form
 
-    registration_form.fill_full_name('natalya', 'alansi')
-    registration_form.fill_email('nalansi@yahoo.com')
-    registration_form.select_gender(user.Gender.Male)
-    registration_form.fill_phone_number('0123456789')
-    registration_form.select_birthday(datetime.date(1993, 7, 24))
-    registration_form.fill_subjects('Computer Science')
-    registration_form.select_hobbies(user.Hobby.Sports)
-    registration_form.select_picture('minion.png')
-    registration_form.fill_address('Tbilisi')
-    registration_form.scroll_to_bottom()
-    registration_form.set_state('NCR')
-    registration_form.set_city('Delhi')
-    registration_form.submit()
+            .open()
 
-    registration_form.check_submitted_user(
-        [
-            ('Student Name', 'natalya alansi'),
-            ('Student Email', 'nalansi@yahoo.com'),
-            ('Gender', 'Male'),
-            ('Mobile', '0123456789'),
-            ('Date of Birth', '24 July,1993'),
-            ('Subjects', 'Computer Science'),
-            ('Hobbies', 'Sports'),
-            ('Picture', 'minion.png'),
-            ('Address', 'Tbilisi'),
-            ('State and City', 'NCR Delhi')
-        ],
+            .fill_full_name(student.firstname, student.lastname)
+            .fill_email(student.email)
+            .select_gender(student.gender)
+            .fill_phone_number(student.mobile)
+            .select_birthday(student.birthday)
+            .fill_subjects(student.subjects)
+            .set_hobbies(student.hobbies)
+            .select_picture(student.picture)
+            .fill_address(student.address)
+            .scroll_to_bottom()
+            .set_state(student.state)
+            .set_city(student.city)
+            .submit()
+
+            .assert_form_sent(
+                ('Student Name', f'{student.firstname} {student.lastname}'),
+                ('Student Email', student.email),
+                ('Gender', student.gender.name),
+                ('Mobile', student.mobile),
+                ('Date of Birth', student.birthday),
+                ('Subjects', ', '.join([subject.value for subject in student.subjects])),
+                ('Hobbies', ', '.join([hobby.value for hobby in student.hobbies])),
+                ('Picture', student.picture),
+                ('Address', student.address),
+                ('State and City', f'{student.state} {student.city}')
+            )
     )
